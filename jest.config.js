@@ -1,3 +1,5 @@
+const { getJestProjects } = require('@nrwl/jest');
+
 module.exports = {
-  projects: ['<rootDir>/packages/nx-firebase', '<rootDir>/e2e\\nx-firebase-e2e'],
+  projects: [...getJestProjects(), '<rootDir>/e2e/nx-firebase-e2e'],
 };

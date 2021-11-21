@@ -1,23 +1,19 @@
 import { ExecutorContext } from '@nrwl/devkit';
-
-import { createProjectGraph } from '@nrwl/workspace/src/core/project-graph';
+import { runWebpack } from '@nrwl/node/src/utils/run-webpack';
+import { createProjectGraphAsync } from '@nrwl/workspace/src/core/project-graph';
 import {
   calculateProjectDependencies,
   checkDependentProjectsHaveBeenBuilt,
-  createTmpTsConfig,
+  createTmpTsConfig
 } from '@nrwl/workspace/src/utilities/buildable-libs-utils';
-import { runWebpack } from '@nrwl/workspace/src/utilities/run-webpack';
-import * as webpack from 'webpack';
-
-import { map, tap } from 'rxjs/operators';
-import { eachValueFrom } from 'rxjs-for-await';
 import { resolve } from 'path';
-
-import { getNodeWebpackConfig } from './utils/node.config';
+import { eachValueFrom } from 'rxjs-for-await';
+import { map, tap } from 'rxjs/operators';
 import { OUT_FILENAME } from './utils/config';
-import { BuildNodeBuilderOptions } from './utils/types';
-import { normalizeBuildOptions } from './utils/normalize';
 import { generatePackageJson } from './utils/generate-package-json';
+import { getNodeWebpackConfig } from './utils/node.config';
+import { normalizeBuildOptions } from './utils/normalize';
+import { BuildNodeBuilderOptions } from './utils/types';
 
 try {
   require('dotenv').config();
@@ -28,7 +24,7 @@ export type NodeBuildEvent = {
   success: boolean;
 };
 
-export function buildExecutor(
+export async function* buildExecutor(
   rawOptions: BuildNodeBuilderOptions,
   context: ExecutorContext
 ) {
@@ -48,7 +44,7 @@ export function buildExecutor(
     sourceRoot,
     root
   );
-  const projGraph = createProjectGraph();
+  const projGraph = await createProjectGraphAsync();
   if (!options.buildLibsFromSource) {
     const { target, dependencies } = calculateProjectDependencies(
       projGraph,
@@ -79,22 +75,23 @@ export function buildExecutor(
   if (options.generatePackageJson) {
     generatePackageJson(context.projectName, projGraph, options);
   }
+
   const config = options.webpackConfig.reduce((currentConfig, plugin) => {
     return require(plugin)(currentConfig, {
       options,
-      configuration: context.configurationName,
+      configuration: context.configurationName
     });
   }, getNodeWebpackConfig(options));
 
-  return eachValueFrom(
-    runWebpack(config, webpack).pipe(
+  return yield* eachValueFrom(
+    runWebpack(config).pipe(
       tap((stats) => {
         console.info(stats.toString(config.stats));
       }),
       map((stats) => {
         return {
           success: !stats.hasErrors(),
-          outfile: resolve(context.root, options.outputPath, OUT_FILENAME),
+          outfile: resolve(context.root, options.outputPath, OUT_FILENAME)
         } as NodeBuildEvent;
       })
     )

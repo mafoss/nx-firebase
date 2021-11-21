@@ -2,7 +2,7 @@ import { ExecutorContext } from '@nrwl/devkit';
 
 import {
   readJsonFile,
-  writeJsonFile,
+  writeJsonFile
 } from '@nrwl/workspace/src/utilities/fileutils';
 import { basename, join } from 'path';
 import { NormalizedBuilderOptions } from './models';

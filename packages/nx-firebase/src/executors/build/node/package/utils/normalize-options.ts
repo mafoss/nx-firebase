@@ -1,7 +1,7 @@
 import { ExecutorContext, normalizePath } from '@nrwl/devkit';
 import {
   assetGlobsToFiles,
-  FileInputOutput,
+  FileInputOutput
 } from '@nrwl/workspace/src/utilities/assets';
 import { existsSync } from 'fs-extra';
 import { dirname, join, relative } from 'path';
@@ -42,6 +42,6 @@ export default function normalizeOptions(
     ...options,
     files,
     relativeMainFileOutput,
-    normalizedOutputPath: join(context.root, options.outputPath),
+    normalizedOutputPath: join(context.root, options.outputPath)
   };
 }

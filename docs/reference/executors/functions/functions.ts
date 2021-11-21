@@ -1,49 +1,43 @@
-console.log("functions.ts before")
-
-import '../../utils/e2ePatch'   // intentional side effects
-
-console.log("functions.ts after")
-
-import { FunctionsExecutorSchema } from './schema';
+console.log('functions.ts before');
 
 import { ExecutorContext, ProjectGraph, ProjectGraphNode } from '@nrwl/devkit';
-import { createProjectGraph, ProjectType } from '@nrwl/workspace/src/core/project-graph';
+import { readJsonFile, readNxJson, readWorkspaceJson } from '@nrwl/workspace';
+import { createProjectFileMap } from '@nrwl/workspace/src/core/file-utils';
 import {
-  calculateProjectDependencies,
+  createProjectGraphAsync,
+  ProjectType
+} from '@nrwl/workspace/src/core/project-graph';
+import { getOutputsForTargetAndConfiguration } from '@nrwl/workspace/src/tasks-runner/utils';
+import {
   checkDependentProjectsHaveBeenBuilt,
-  DependentBuildableProjectNode,
-  updateBuildableProjectPackageJsonDependencies,
+  DependentBuildableProjectNode
 } from '@nrwl/workspace/src/utilities/buildable-libs-utils';
+import { join } from 'path';
+import '../../utils/e2ePatch'; // intentional side effects
+import { FunctionsExecutorSchema } from './schema';
 
-import {
-    projectRootDir, readJsonFile, readNxJson, readWorkspaceJson 
-} from '@nrwl/workspace'
-import { readWorkspaceFiles } from '@nrwl/workspace/src/core/file-utils'
-import { join } from 'path'
-import { getOutputsForTargetAndConfiguration } from '@nrwl/workspace/src/tasks-runner/utils'
-
-
-
-
+console.log('functions.ts after');
 
 function isBuildable(target: string, node: ProjectGraphNode): boolean {
-    console.log("isBuildable target=" + target)
-    const nodeTargets = node.data.targets
-    const nodeTarget = nodeTargets ? nodeTargets[target] : undefined
-    const nodeTargetExecutor = nodeTarget ? nodeTarget.executor : undefined
-    const isBuildableTarget = (nodeTargetExecutor && nodeTargetExecutor !== '') ? true : false
-    console.log("node.data.targets=" + JSON.stringify(nodeTargets, null, 3))
-    console.log("node.data.targets[target]=" + JSON.stringify(nodeTarget, null, 3))
-    console.log("node.data.targets[target].executor=" + nodeTargetExecutor)
-    console.log("isBuildableTarget=" + isBuildableTarget)
+  console.log('isBuildable target=' + target);
+  const nodeTargets = node.data.targets;
+  const nodeTarget = nodeTargets ? nodeTargets[target] : undefined;
+  const nodeTargetExecutor = nodeTarget ? nodeTarget.executor : undefined;
+  const isBuildableTarget =
+    nodeTargetExecutor && nodeTargetExecutor !== '' ? true : false;
+  console.log('node.data.targets=' + JSON.stringify(nodeTargets, null, 3));
+  console.log(
+    'node.data.targets[target]=' + JSON.stringify(nodeTarget, null, 3)
+  );
+  console.log('node.data.targets[target].executor=' + nodeTargetExecutor);
+  console.log('isBuildableTarget=' + isBuildableTarget);
 
-    const buildable = (
-        node.data.targets &&
-        node.data.targets[target] &&
-        node.data.targets[target].executor !== ''
-      );
-  console.log("target " + target + " is buildable = " + buildable)
-  return buildable
+  const buildable =
+    node.data.targets &&
+    node.data.targets[target] &&
+    node.data.targets[target].executor !== '';
+  console.log('target ' + target + ' is buildable = ' + buildable);
+  return buildable;
 }
 
 function myCalculateProjectDependencies(
@@ -53,8 +47,7 @@ function myCalculateProjectDependencies(
   targetName: string,
   configurationName: string
 ): { target: ProjectGraphNode; dependencies: DependentBuildableProjectNode[] } {
-
-    console.log("myCalculateProjectDependencies")
+  console.log('myCalculateProjectDependencies');
   const target = projGraph.nodes[projectName];
   // gather the library dependencies
   const dependencies = recursivelyCollectDependencies(
@@ -64,7 +57,7 @@ function myCalculateProjectDependencies(
   )
     .map((dep) => {
       const depNode = projGraph.nodes[dep];
-      console.log("Found depNode=" + JSON.stringify(depNode, null, 3))
+      console.log('Found depNode=' + JSON.stringify(depNode, null, 3));
       if (
         depNode.type === ProjectType.lib &&
         isBuildable(targetName, depNode)
@@ -72,7 +65,12 @@ function myCalculateProjectDependencies(
         const libPackageJson = readJsonFile(
           join(root, depNode.data.root, 'package.json')
         );
-          console.log("found buildable lib project dependency " + targetName + ", packagename= " + libPackageJson.name)
+        console.log(
+          'found buildable lib project dependency ' +
+            targetName +
+            ', packagename= ' +
+            libPackageJson.name
+        );
 
         return {
           name: libPackageJson.name, // i.e. @workspace/mylib
@@ -82,20 +80,20 @@ function myCalculateProjectDependencies(
               target: {
                 project: projectName,
                 target: targetName,
-                configuration: configurationName,
-              },
+                configuration: configurationName
+              }
             },
             depNode
           ),
-          node: depNode,
+          node: depNode
         };
       } else if (depNode.type === 'npm') {
-                    console.log("found npm project dependency " + depNode.data.packageName)
+        console.log('found npm project dependency ' + depNode.data.packageName);
 
         return {
           name: depNode.data.packageName,
           outputs: [],
-          node: depNode,
+          node: depNode
         };
       } else {
         return null;
@@ -119,32 +117,34 @@ function recursivelyCollectDependencies(
   return acc;
 }
 
-
-
-
-
-
-
-
-
-export default async function runExecutor(options: FunctionsExecutorSchema, context: ExecutorContext) {
+export default async function runExecutor(
+  options: FunctionsExecutorSchema,
+  context: ExecutorContext
+) {
   console.log('Executor ran for functions');
-  // defaults for createProjectGraph
+  // defaults for createProjectGraphAsync
   //console.log("projectRootDir=", projectRootDir())
-  console.log("__dirname=", __dirname)
-  console.log("readWorkspaceJson=", JSON.stringify(readWorkspaceJson(), null, 3))
-  console.log("readNxJson=", JSON.stringify(readNxJson(), null, 3))
-  console.log("readWorkspaceFiles=", JSON.stringify(readWorkspaceFiles(), null, 3))
+  console.log('__dirname=', __dirname);
+  console.log(
+    'readWorkspaceJson=',
+    JSON.stringify(readWorkspaceJson(), null, 3)
+  );
+  console.log('readNxJson=', JSON.stringify(readNxJson(), null, 3));
+  console.log(
+    'readWorkspaceFiles=',
+    JSON.stringify(createProjectFileMap(readWorkspaceJson()), null, 3)
+  );
 
-    //executor params
-  console.log("options=" + JSON.stringify(options, null, 3))
-  console.log("context=" + JSON.stringify(context, null, 3))
+  //executor params
+  console.log('options=' + JSON.stringify(options, null, 3));
+  console.log('context=' + JSON.stringify(context, null, 3));
 
   //const targetName = context.targetName
-  const targetName = 'build' // use a known target name to determine if dependencies are buildable. Our executor is not called 'build' so dependency targets will not be matched otherwise.
+  const targetName = 'build'; // use a known target name to determine if dependencies are buildable. Our executor is not called 'build' so dependency targets will not be matched otherwise.
   // create project graph
-    const projGraph = createProjectGraph();
-    const { target, dependencies } = myCalculateProjectDependencies( // calculateProjectDependencies(
+  const projGraph = await createProjectGraphAsync();
+  const { target, dependencies } = myCalculateProjectDependencies(
+    // calculateProjectDependencies(
     projGraph,
     context.root,
     context.projectName,
@@ -161,16 +161,15 @@ export default async function runExecutor(options: FunctionsExecutorSchema, cont
     throw new Error();
   }
 
-    console.log("projGraph=" + JSON.stringify(projGraph, null, 3))
-    console.log("target=" + JSON.stringify(target, null, 3))
-    console.log("dependencies=" + JSON.stringify(dependencies, null, 3))
-
+  console.log('projGraph=' + JSON.stringify(projGraph, null, 3));
+  console.log('target=' + JSON.stringify(target, null, 3));
+  console.log('dependencies=' + JSON.stringify(dependencies, null, 3));
 
   for (const d of dependencies) {
-      console.log(" Dependency - " + d.name)
+    console.log(' Dependency - ' + d.name);
   }
 
   return {
-    success: true,
+    success: true
   };
 }

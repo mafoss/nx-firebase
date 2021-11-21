@@ -3,7 +3,7 @@ import { ExecutorContext } from '@nrwl/devkit';
 import {
   readJsonFile,
   writeJsonFile,
-  writeToFile,
+  writeToFile
 } from '@nrwl/workspace/src/utilities/fileutils';
 import { chmodSync } from 'fs-extra';
 import { NormalizedBuilderOptions } from './models';
@@ -19,6 +19,7 @@ export default function addCliWrapper(
     binFile,
     `#!/usr/bin/env node
 'use strict';
+
 require('${packageJson.main}');
 `
   );
@@ -26,7 +27,7 @@ require('${packageJson.main}');
   chmodSync(binFile, '755'); // Make the command-line file executable
 
   packageJson.bin = {
-    [context.projectName]: './index.bin.js',
+    [context.projectName]: './index.bin.js'
   };
   writeJsonFile(`${options.outputPath}/package.json`, packageJson);
 }

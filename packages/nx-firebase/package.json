@@ -21,9 +21,11 @@
   "generators": "./generators.json",
   "executors": "./executors.json",
   "peerDependencies": {
-    "@nrwl/devkit": ">= 12.1.1",
-    "@nrwl/workspace": ">= 12.1.1",
-    "@nrwl/linter": ">= 12.1.1",
-    "@nrwl/jest": ">= 12.1.1"
+    "@angular-devkit/schematics": ">= 13.0.3",
+    "@angular-devkit/architect": ">= 0.1300.3",
+    "@nrwl/devkit": ">= 13.2.1",
+    "@nrwl/workspace": ">= 13.2.1",
+    "@nrwl/linter": ">= 13.2.1",
+    "@nrwl/jest": ">= 13.2.1"
   }
 }
