@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "executors": {
+    "build": {
+      "implementation": "./src/executors/build/build",
+      "schema": "./src/executors/build/schema.json",
+      "description": "firebase build executor"
+    },
+    "firebase": {
+      "implementation": "./src/executors/firebase/firebase",
+      "schema": "./src/executors/firebase/schema.json",
+      "description": "firebase cli executor"
+    },
+    "testexecutor": {
+      "implementation": "./src/executors/testexecutor/executor",
+      "schema": "./src/executors/testexecutor/schema.json",
+      "description": "testexecutor executor"
+    }
+  }
+}
