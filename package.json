@@ -31,12 +31,13 @@
   },
   "private": true,
   "dependencies": {
-    "fs-extra": "^10.0.0",
-    "tslib": "^2.0.0",
+    "@angular-devkit/architect": "0.1300.3",
     "@angular-devkit/schematics": "13.0.3",
-    "@angular-devkit/architect": "0.1300.3"
+    "fs-extra": "^10.0.0",
+    "tslib": "^2.0.0"
   },
   "devDependencies": {
+    "@nrwl/builders": "^7.8.7",
     "@nrwl/cli": "13.2.1",
     "@nrwl/devkit": "13.2.1",
     "@nrwl/eslint-plugin-nx": "13.2.1",

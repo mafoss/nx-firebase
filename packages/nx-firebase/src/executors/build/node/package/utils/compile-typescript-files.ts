@@ -1,3 +1,4 @@
+import {buildExecutor} from '@nrwl/node/src/executors/build/build.impl';
 import { ExecutorContext } from '@nrwl/devkit';
 import {
   createTmpTsConfig,
@@ -14,7 +15,8 @@ import type {
   CustomTransformers,
   Program,
   SourceFile,
-  TransformerFactory
+  TransformerFactory,
+  CompilerOptions
 } from 'typescript';
 
 export default async function compileTypeScriptFiles(
@@ -24,6 +26,7 @@ export default async function compileTypeScriptFiles(
   projectDependencies: DependentBuildableProjectNode[],
   postCompleteAction: () => void | Promise<void>
 ) {
+
   let tsConfigPath = join(context.root, options.tsConfig);
   if (projectDependencies.length > 0) {
     tsConfigPath = createTmpTsConfig(
@@ -56,8 +59,31 @@ export default async function compileTypeScriptFiles(
     deleteOutputPath: options.deleteOutputPath,
     rootDir: options.srcRootForCompilationRoot,
     watch: options.watch,
+    sourceMap:false,
+    removeComments:true,
     getCustomTransformers
   };
+
+
+/**
+ * Use node builder from 
+ */
+  async function buildWithNrwlBuilder() {
+    return buildExecutor({
+      outputPath: options.normalizedOutputPath,
+      projectRoot: libRoot,
+      tsConfig: tsConfigPath,
+      watch: options.watch,
+      sourceMap:false,
+      externalDependencies: projectDependencies.map(res => res.name),
+      main: options.main,
+      fileReplacements: []
+    },context).return({ success: true });
+  }
+
+
+  return buildWithNrwlBuilder();
+  
 
   if (options.watch) {
     return compileTypeScriptWatcher(tcsOptions, async (d) => {
@@ -72,3 +98,6 @@ export default async function compileTypeScriptFiles(
     return result;
   }
 }
+
+
+
