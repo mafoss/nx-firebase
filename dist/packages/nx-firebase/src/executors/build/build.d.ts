@@ -17,18 +17,6 @@ import { FirebaseBuildExecutorSchema } from './schema';
  * @returns build success/failure outcome
  */
 export default function runExecutor(options: FirebaseBuildExecutorSchema, context: ExecutorContext): Promise<{
+    sucess: any;
     outputPath: string;
-    done?: false;
-    value: import("@nrwl/node/src/executors/build/build.impl").NodeBuildEvent;
-} | {
-    outputPath: string;
-    done: true;
-    value: any;
-} | {
-    outputPath: string;
-    getProgram(): import("typescript").BuilderProgram;
-    close(): void;
-} | {
-    outputPath: string;
-    success: boolean;
 }>;

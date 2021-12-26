@@ -222,7 +222,10 @@ function runExecutor(options, context) {
         const result = yield compile_typescript_files_1.default(normalizedOptions, context, appRoot, dependencies, () => {
             //
         });
-        return Object.assign(Object.assign({}, result), { outputPath: normalizedOptions.outputPath });
+        return {
+            sucess: result['success'],
+            outputPath: normalizedOptions.outputPath
+        };
     });
 }
 exports.default = runExecutor;
