@@ -37,6 +37,7 @@ function debugLog(...args) {
  * @returns build success/failure outcome
  */
 function runExecutor(options, context) {
+    var _a, _b, _c;
     return tslib_1.__awaiter(this, void 0, void 0, function* () {
         debugLog("Running Executor for Firebase Build for project '" +
             context.projectName +
@@ -222,7 +223,10 @@ function runExecutor(options, context) {
         const result = yield compile_typescript_files_1.default(normalizedOptions, context, appRoot, dependencies, () => {
             //
         });
-        return Object.assign(Object.assign({}, result), { outputPath: normalizedOptions.outputPath });
+        return {
+            success: (_c = (_b = (_a = result['value']) === null || _a === void 0 ? void 0 : _a.success) !== null && _b !== void 0 ? _b : result['success']) !== null && _c !== void 0 ? _c : false,
+            outputPath: normalizedOptions.outputPath,
+        };
     });
 }
 exports.default = runExecutor;

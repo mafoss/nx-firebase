@@ -321,8 +321,10 @@ export default async function runExecutor(
     }
   );
 
+
+  
   return {
-    ...(result as { success: boolean }),
+    success: result['value']?.success ?? result['success'] ?? false,
     outputPath: normalizedOptions.outputPath,
   };
 }
