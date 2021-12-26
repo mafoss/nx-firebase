@@ -1,6 +1,6 @@
 //SM: as of nx v12.1.1, we need this patch for ensuring the correct workspace is set in e2e runs
 // See: https://github.com/nrwl/nx/issues/5065
-import { ExecutorContext, joinPathFragments, logger } from '@nrwl/devkit';
+import { ExecutorContext, joinPathFragments, logger, readJsonFile, writeJsonFile } from '@nrwl/devkit';
 import { readCachedProjectGraph } from '@nrwl/workspace/src/core/project-graph';
 import { copyAssetFiles } from '@nrwl/workspace/src/utilities/assets';
 import {
@@ -9,7 +9,6 @@ import {
   DependentBuildableProjectNode,
   updateBuildableProjectPackageJsonDependencies
 } from '@nrwl/workspace/src/utilities/buildable-libs-utils';
-import { readFileSync, writeFileSync } from 'fs';
 import { copy, removeSync } from 'fs-extra';
 import * as path from 'path';
 import '../../utils/e2ePatch';
@@ -56,6 +55,7 @@ export default async function runExecutor(
 
   // get the project graph; returns an object containing all nodes in the workspace, files, and dependencies
   const projGraph = readCachedProjectGraph();
+
   // nx firebase functions are essentially @nrwl/node:package libraries, but are added to the project
   // as applications as they are fundamentally the deployable "application" output of a build pipeline.
   // Due to this, we can import standard node libraries as dependencies from within the workspace
@@ -118,6 +118,7 @@ export default async function runExecutor(
       (a: DependentBuildableProjectNode, b: DependentBuildableProjectNode) =>
         a.name.localeCompare(b.name)
     );
+
   for (const d of npmDeps) {
     const type = d.node.type;
     logger.log(" -  Added '" + type + "' dependency '" + d.name + "'");
@@ -237,7 +238,7 @@ export default async function runExecutor(
   const functionsPackageFile = `${options.outputPath}/package.json`;
 
   debugLog('- functions PackageFile=' + functionsPackageFile);
-  const functionsPackageJson: Record<string, unknown> = JSON.parse(readFileSync(functionsPackageFile).toString());
+  const functionsPackageJson: Record<string, unknown> = readJsonFile(functionsPackageFile);
   const functionsPackageDeps = functionsPackageJson.dependencies as Record<string, unknown>;
   if (functionsPackageDeps) {
     debugLog(
@@ -264,7 +265,7 @@ export default async function runExecutor(
       }
     }
   }
-  writeFileSync(functionsPackageFile, JSON.stringify(functionsPackageJson));
+  writeJsonFile(functionsPackageFile, functionsPackageJson);
   logger.log('- Updated firebase functions package.json');
   debugLog(
     'functions package deps = ',

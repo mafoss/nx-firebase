@@ -1,5 +1,4 @@
-import { ExecutorContext } from '@nrwl/devkit';
-import { readFileSync, writeFileSync } from 'fs';
+import { ExecutorContext, readJsonFile, writeJsonFile } from '@nrwl/devkit';
 import { basename, join } from 'path';
 import { NormalizedBuilderOptions } from './models';
 
@@ -10,7 +9,7 @@ export default function updatePackageJson(
   const mainFile = basename(options.main).replace(/\.[tj]s$/, '');
   const typingsFile = `${mainFile}.d.ts`;
   const mainJsFile = `${mainFile}.js`;
-  const packageJson: Record<string, unknown> = JSON.parse(readFileSync(join(context.root, options.packageJson)).toString());
+  const packageJson = readJsonFile(join(context.root, options.packageJson));
 
   if (!packageJson.main) {
     packageJson.main = `${options.relativeMainFileOutput}${mainJsFile}`;
@@ -20,5 +19,5 @@ export default function updatePackageJson(
     packageJson.typings = `${options.relativeMainFileOutput}${typingsFile}`;
   }
 
-  writeFileSync(`${options.outputPath}/package.json`, JSON.stringify(packageJson));
+  writeJsonFile(`${options.outputPath}/package.json`, packageJson);
 }

@@ -5,15 +5,16 @@ const tslib_1 = require("tslib");
 const project_graph_1 = require("@nrwl/workspace/src/core/project-graph");
 const assets_1 = require("@nrwl/workspace/src/utilities/assets");
 const buildable_libs_utils_1 = require("@nrwl/workspace/src/utilities/buildable-libs-utils");
-const compile_typescript_files_1 = require("./utils/compile-typescript-files");
-const update_package_json_1 = require("./utils/update-package-json");
-const normalize_options_1 = require("./utils/normalize-options");
 const cli_1 = require("./utils/cli");
+const compile_typescript_files_1 = require("./utils/compile-typescript-files");
+const normalize_options_1 = require("./utils/normalize-options");
+const update_package_json_1 = require("./utils/update-package-json");
 function packageExecutor(options, context) {
     return tslib_1.__awaiter(this, void 0, void 0, function* () {
         const libRoot = context.workspace.projects[context.projectName].root;
+        const projectGraph = project_graph_1.readCachedProjectGraph();
         const normalizedOptions = normalize_options_1.default(options, context, libRoot);
-        const { target, dependencies } = buildable_libs_utils_1.calculateProjectDependencies(project_graph_1.readCachedProjectGraph(), context.root, context.projectName, context.targetName, context.configurationName);
+        const { target, dependencies } = buildable_libs_utils_1.calculateProjectDependencies(projectGraph, context.root, context.projectName, context.targetName, context.configurationName);
         const dependentsBuilt = buildable_libs_utils_1.checkDependentProjectsHaveBeenBuilt(context.root, context.projectName, context.targetName, dependencies);
         if (!dependentsBuilt) {
             throw new Error();

@@ -6,20 +6,21 @@ import {
   checkDependentProjectsHaveBeenBuilt,
   updateBuildableProjectPackageJsonDependencies
 } from '@nrwl/workspace/src/utilities/buildable-libs-utils';
-import { NodePackageBuilderOptions } from './utils/models';
-import compileTypeScriptFiles from './utils/compile-typescript-files';
-import updatePackageJson from './utils/update-package-json';
-import normalizeOptions from './utils/normalize-options';
 import addCliWrapper from './utils/cli';
+import compileTypeScriptFiles from './utils/compile-typescript-files';
+import { NodePackageBuilderOptions } from './utils/models';
+import normalizeOptions from './utils/normalize-options';
+import updatePackageJson from './utils/update-package-json';
 
 export async function packageExecutor(
   options: NodePackageBuilderOptions,
   context: ExecutorContext
 ) {
   const libRoot = context.workspace.projects[context.projectName].root;
+  const projectGraph = readCachedProjectGraph();
   const normalizedOptions = normalizeOptions(options, context, libRoot);
   const { target, dependencies } = calculateProjectDependencies(
-    readCachedProjectGraph(),
+    projectGraph,
     context.root,
     context.projectName,
     context.targetName,
