@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
+const build_impl_1 = require("@nrwl/node/src/executors/build/build.impl");
 const buildable_libs_utils_1 = require("@nrwl/workspace/src/utilities/buildable-libs-utils");
 const compilation_1 = require("@nrwl/workspace/src/utilities/typescript/compilation");
 const path_1 = require("path");
@@ -25,8 +26,28 @@ function compileTypeScriptFiles(options, context, libRoot, projectDependencies, 
             deleteOutputPath: options.deleteOutputPath,
             rootDir: options.srcRootForCompilationRoot,
             watch: options.watch,
+            sourceMap: false,
+            removeComments: true,
             getCustomTransformers
         };
+        /**
+         * Use node builder from
+         */
+        function buildWithNrwlBuilder() {
+            return tslib_1.__awaiter(this, void 0, void 0, function* () {
+                return build_impl_1.buildExecutor({
+                    outputPath: options.normalizedOutputPath,
+                    projectRoot: libRoot,
+                    tsConfig: tsConfigPath,
+                    watch: options.watch,
+                    sourceMap: false,
+                    externalDependencies: projectDependencies.map(res => res.name),
+                    main: options.main,
+                    fileReplacements: []
+                }, context).return({ success: true });
+            });
+        }
+        return buildWithNrwlBuilder();
         if (options.watch) {
             return compilation_1.compileTypeScriptWatcher(tcsOptions, (d) => tslib_1.__awaiter(this, void 0, void 0, function* () {
                 // Means tsc found 0 errors, in watch mode. https://github.com/microsoft/TypeScript/blob/main/src/compiler/diagnosticMessages.json

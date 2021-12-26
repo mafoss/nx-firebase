@@ -4,11 +4,10 @@ const tslib_1 = require("tslib");
 //SM: as of nx v12.1.1, we need this patch for ensuring the correct workspace is set in e2e runs
 // See: https://github.com/nrwl/nx/issues/5065
 const devkit_1 = require("@nrwl/devkit");
-const workspace_1 = require("@nrwl/workspace");
 const project_graph_1 = require("@nrwl/workspace/src/core/project-graph");
 const assets_1 = require("@nrwl/workspace/src/utilities/assets");
 const buildable_libs_utils_1 = require("@nrwl/workspace/src/utilities/buildable-libs-utils");
-const fileutils_1 = require("@nrwl/workspace/src/utilities/fileutils");
+const fs_1 = require("fs");
 const fs_extra_1 = require("fs-extra");
 const path = require("path");
 require("../../utils/e2ePatch");
@@ -168,7 +167,7 @@ function runExecutor(options, context) {
         // to be local package references to the copies we made
         const functionsPackageFile = `${options.outputPath}/package.json`;
         debugLog('- functions PackageFile=' + functionsPackageFile);
-        const functionsPackageJson = workspace_1.readJsonFile(functionsPackageFile);
+        const functionsPackageJson = JSON.parse(fs_1.readFileSync(functionsPackageFile).toString());
         const functionsPackageDeps = functionsPackageJson.dependencies;
         if (functionsPackageDeps) {
             debugLog('- Updating local dependencies for Firebase functions package.json');
@@ -189,7 +188,7 @@ function runExecutor(options, context) {
                 }
             }
         }
-        fileutils_1.writeJsonFile(functionsPackageFile, functionsPackageJson);
+        fs_1.writeFileSync(functionsPackageFile, JSON.stringify(functionsPackageJson));
         devkit_1.logger.log('- Updated firebase functions package.json');
         debugLog('functions package deps = ', JSON.stringify(functionsPackageDeps, null, 3));
         // Final dep check before we compile for:

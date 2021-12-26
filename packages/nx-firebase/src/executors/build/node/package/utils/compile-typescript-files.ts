@@ -1,5 +1,5 @@
-import {buildExecutor} from '@nrwl/node/src/executors/build/build.impl';
 import { ExecutorContext } from '@nrwl/devkit';
+import { buildExecutor } from '@nrwl/node/src/executors/build/build.impl';
 import {
   createTmpTsConfig,
   DependentBuildableProjectNode
@@ -9,15 +9,14 @@ import {
   compileTypeScriptWatcher
 } from '@nrwl/workspace/src/utilities/typescript/compilation';
 import { join } from 'path';
-import { NormalizedBuilderOptions } from './models';
-import { loadTsPlugins } from '../../../../../utils/load-ts-plugins';
 import type {
   CustomTransformers,
   Program,
   SourceFile,
-  TransformerFactory,
-  CompilerOptions
+  TransformerFactory
 } from 'typescript';
+import { loadTsPlugins } from '../../../../../utils/load-ts-plugins';
+import { NormalizedBuilderOptions } from './models';
 
 export default async function compileTypeScriptFiles(
   options: NormalizedBuilderOptions,

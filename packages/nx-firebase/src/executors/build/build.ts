@@ -1,7 +1,6 @@
 //SM: as of nx v12.1.1, we need this patch for ensuring the correct workspace is set in e2e runs
 // See: https://github.com/nrwl/nx/issues/5065
 import { ExecutorContext, joinPathFragments, logger } from '@nrwl/devkit';
-import { readJsonFile } from '@nrwl/workspace';
 import { readCachedProjectGraph } from '@nrwl/workspace/src/core/project-graph';
 import { copyAssetFiles } from '@nrwl/workspace/src/utilities/assets';
 import {
@@ -10,7 +9,7 @@ import {
   DependentBuildableProjectNode,
   updateBuildableProjectPackageJsonDependencies
 } from '@nrwl/workspace/src/utilities/buildable-libs-utils';
-import { writeJsonFile } from '@nrwl/workspace/src/utilities/fileutils';
+import { readFileSync, writeFileSync } from 'fs';
 import { copy, removeSync } from 'fs-extra';
 import * as path from 'path';
 import '../../utils/e2ePatch';
@@ -238,8 +237,8 @@ export default async function runExecutor(
   const functionsPackageFile = `${options.outputPath}/package.json`;
 
   debugLog('- functions PackageFile=' + functionsPackageFile);
-  const functionsPackageJson = readJsonFile(functionsPackageFile);
-  const functionsPackageDeps = functionsPackageJson.dependencies;
+  const functionsPackageJson: Record<string, unknown> = JSON.parse(readFileSync(functionsPackageFile).toString());
+  const functionsPackageDeps = functionsPackageJson.dependencies as Record<string, unknown>;
   if (functionsPackageDeps) {
     debugLog(
       '- Updating local dependencies for Firebase functions package.json'
@@ -265,7 +264,7 @@ export default async function runExecutor(
       }
     }
   }
-  writeJsonFile(functionsPackageFile, functionsPackageJson);
+  writeFileSync(functionsPackageFile, JSON.stringify(functionsPackageJson));
   logger.log('- Updated firebase functions package.json');
   debugLog(
     'functions package deps = ',

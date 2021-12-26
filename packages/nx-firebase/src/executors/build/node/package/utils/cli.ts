@@ -1,10 +1,9 @@
 import { ExecutorContext } from '@nrwl/devkit';
 
 import {
-  readJsonFile,
-  writeJsonFile,
   writeToFile
 } from '@nrwl/workspace/src/utilities/fileutils';
+import { readFileSync, writeFileSync } from 'fs';
 import { chmodSync } from 'fs-extra';
 import { NormalizedBuilderOptions } from './models';
 
@@ -12,7 +11,7 @@ export default function addCliWrapper(
   options: NormalizedBuilderOptions,
   context: ExecutorContext
 ) {
-  const packageJson = readJsonFile(`${options.outputPath}/package.json`);
+  const packageJson: Record<string, unknown> = JSON.parse(readFileSync(`${options.outputPath}/package.json`).toString());
 
   const binFile = `${options.outputPath}/index.bin.js`;
   writeToFile(
@@ -29,5 +28,5 @@ require('${packageJson.main}');
   packageJson.bin = {
     [context.projectName]: './index.bin.js'
   };
-  writeJsonFile(`${options.outputPath}/package.json`, packageJson);
+  writeFileSync(`${options.outputPath}/package.json`, JSON.stringify(packageJson));
 }

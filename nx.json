@@ -32,6 +32,7 @@
     ]
   },
   "cli": {
-    "defaultCollection": "@nrwl/workspace"
+    "defaultCollection": "@nrwl/workspace",
+    "packageManager": "yarn"
   }
 }
