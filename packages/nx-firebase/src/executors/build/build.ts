@@ -1,7 +1,7 @@
 //SM: as of nx v12.1.1, we need this patch for ensuring the correct workspace is set in e2e runs
 // See: https://github.com/nrwl/nx/issues/5065
 import { ExecutorContext, joinPathFragments, logger, readJsonFile, writeJsonFile } from '@nrwl/devkit';
-import { readCachedProjectGraph } from '@nrwl/workspace/src/core/project-graph';
+import { createProjectGraphAsync } from '@nrwl/workspace/src/core/project-graph';
 import { copyAssetFiles } from '@nrwl/workspace/src/utilities/assets';
 import {
   calculateProjectDependencies,
@@ -54,7 +54,7 @@ export default async function runExecutor(
   debugLog('options=', options);
 
   // get the project graph; returns an object containing all nodes in the workspace, files, and dependencies
-  const projGraph = readCachedProjectGraph();
+  const projGraph = await createProjectGraphAsync('4.0');
 
   // nx firebase functions are essentially @nrwl/node:package libraries, but are added to the project
   // as applications as they are fundamentally the deployable "application" output of a build pipeline.
