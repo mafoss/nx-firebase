@@ -320,8 +320,9 @@ export default async function runExecutor(
       //
     }
   );
+
   return {
-    sucess: result['success'],
-    outputPath: normalizedOptions.outputPath
+    ...(result as { success: boolean }),
+    outputPath: normalizedOptions.outputPath,
   };
 }
